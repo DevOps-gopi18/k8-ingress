@@ -32,3 +32,27 @@ spec:
   - protocol: TCP
     port: 80 #service port
     targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:688567292254:certificate/0e43071e-96f4-4cf3-a2ae-ac8d09e430ca
+    alb.ingress.kubernetes.io/group.name: gopi310
+spec:
+  ingressClassName: alb
+  rules:
+  - host: "app1.gopisg18.online"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: app1
+            port:
+              number: 80
