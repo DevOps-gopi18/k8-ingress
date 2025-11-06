@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2
+  # labels of deployment resources
+  labels:
+    app: app2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+    spec:
+      containers:
+      - name: nginx
+        image: gopi310/app2:1.0.0
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1 
+kind: Service
+metadata:
+  name: app2
+spec:
+  selector: # labels are used as selectors
+    app: app2
+  ports:
+  - protocol: TCP
+    port: 80 #service port
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:688567292254:certificate/0e43071e-96f4-4cf3-a2ae-ac8d09e430ca
+    alb.ingress.kubernetes.io/group.name: gopi310
+spec:
+  ingressClassName: alb
+  rules:
+  - host: "app2.gopisg18.online"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: app2
+            port:
+              number: 80
